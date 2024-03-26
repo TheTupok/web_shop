@@ -3,32 +3,38 @@
 namespace App\Repository;
 
 use App\Entity\Category;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ManagerRegistry;
+use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
+use Transliterator;
 
 /**
- * @extends ServiceEntityRepository<Category>
- *
  * @method Category|null find($id, $lockMode = null, $lockVersion = null)
  * @method Category|null findOneBy(array $criteria, array $orderBy = null)
  * @method Category[]    findAll()
  * @method Category[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CategoryRepository extends ServiceEntityRepository
+class CategoryRepository extends NestedTreeRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function generateCodeName(string $name): string
     {
-        parent::__construct($registry, Category::class);
+        $translite = Transliterator::create('Any-Latin; Latin-ASCII')->transliterate($name);
+        $codeName = strtolower(str_replace(" ", "_", $translite));
+
+        if (!$this->checkCodeName($codeName)) {
+            $origCodeName = $codeName;
+            $i = 0;
+            while (!$this->checkCodeName($codeName)) {
+                $codeName = $origCodeName . "_" . $i;
+                $i++;
+            }
+        }
+
+        return $codeName;
     }
 
-    public function findByCodeName(?string $codeName): QueryBuilder
+    private function checkCodeName(string $codeName): bool
     {
-        $category = $this->createQueryBuilder('c')
-            ->where('c.codeName = :codeName')
-            ->setParameter('codeName', $codeName)
-        ;
+        $category = $this->findBy(["codeName" => $codeName]);
 
-        return $category;
+        return count($category) == 0;
     }
 }

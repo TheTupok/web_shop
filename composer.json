@@ -6,12 +6,13 @@
     "require": {
         "php": ">=8.2",
         "ext-ctype": "*",
-        "ext-http": "*",
         "ext-iconv": "*",
+        "ext-intl": "*",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.12",
         "doctrine/doctrine-migrations-bundle": "^3.3",
-        "doctrine/orm": "^3.1",
+        "doctrine/orm": "2.19.3",
+        "gedmo/doctrine-extensions": "*",
         "phpdocumentor/reflection-docblock": "^5.3",
         "phpstan/phpdoc-parser": "^1.27",
         "symfony/asset": "7.0.*",
@@ -46,7 +47,6 @@
         "symfonycasts/verify-email-bundle": "^1.17",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
-      "ext-intl": "*"
     },
     "config": {
         "allow-plugins": {

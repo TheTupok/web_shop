@@ -4,10 +4,15 @@ namespace App\Entity;
 
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\PersistentCollection;
-use Transliterator;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
 
+#[Gedmo\Tree(type: 'nested')]
+#[ORM\Table(name: 'categories')]
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class Category
@@ -23,7 +28,33 @@ class Category
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'category')]
+    #[Gedmo\TreeLeft]
+    #[ORM\Column(name: 'lft', type: Types::INTEGER)]
+    private ?int $lft;
+
+    #[Gedmo\TreeLevel]
+    #[ORM\Column(name: 'lvl', type: Types::INTEGER)]
+    private ?int $lvl;
+
+    #[Gedmo\TreeRight]
+    #[ORM\Column(name: 'rgt', type: Types::INTEGER)]
+    private ?int $rgt;
+
+    #[Gedmo\TreeRoot]
+    #[ORM\ManyToOne(targetEntity: Category::class)]
+    #[ORM\JoinColumn(name: 'tree_root', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?Category $root;
+
+    #[Gedmo\TreeParent]
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'children')]
+    #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private ?Category $parent;
+
+    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: Category::class)]
+    #[ORM\OrderBy(['lft' => 'ASC'])]
+    private ArrayCollection|PersistentCollection $children;
+
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Product::class)]
     private ArrayCollection|PersistentCollection $products;
 
     public function getId(): ?int
@@ -67,11 +98,26 @@ class Category
 
     #[ORM\PreUpdate]
     #[ORM\PrePersist]
-    public function setCodeName(): Category
+    public function setCodeName(LifecycleEventArgs $event): Category
     {
-        $translite = Transliterator::create('Any-Latin; Latin-ASCII')->transliterate($this->name);
-        $this->codeName = strtolower(str_replace(" ", "_", $translite));
+        $categoryRepository = $event->getObjectManager()->getRepository(Category::class);
+        $this->codeName = $categoryRepository->generateCodeName($this->name);
 
         return $this;
+    }
+
+    public function getRoot(): ?self
+    {
+        return $this->root;
+    }
+
+    public function setParent(self $parent = null): void
+    {
+        $this->parent = $parent;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
     }
 }
