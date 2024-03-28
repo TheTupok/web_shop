@@ -6,8 +6,7 @@
     <h1>Edit Product</h1>
 
     {{ include('admin/category/_form.html.twig', {'button_label': 'Update'}) }}
+    {{ include('admin/category/_delete_form.html.twig') }}
 
     <a href="{{ path('app_admin_catalog') }}">back to list</a>
-
-    {{ include('admin/category/_delete_form.html.twig') }}
 {% endblock %}

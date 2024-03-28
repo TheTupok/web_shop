@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Category;
 use App\Form\CategoryType;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,11 +15,16 @@ use Symfony\Component\Routing\Attribute\Route;
 class CategoryController extends AbstractController
 {
     #[Route('/new', name: 'app_admin_category_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
+    public function new(
+        Request                $request,
+        EntityManagerInterface $entityManager,
+        CategoryRepository     $categoryRepository
+    ): Response {
         $category = new Category();
         $form = $this->createForm(CategoryType::class, $category);
         $form->handleRequest($request);
+
+        $categoryTree = $categoryRepository->getHtmlCategoryHierarchyForForm($category);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($category);
@@ -28,8 +34,9 @@ class CategoryController extends AbstractController
         }
 
         return $this->render('admin/category/new.html.twig', [
-            'category' => $category,
-            'form'     => $form,
+            'category'     => $category,
+            'form'         => $form,
+            'categoryTree' => $categoryTree
         ]);
     }
 
@@ -38,9 +45,12 @@ class CategoryController extends AbstractController
         Request                $request,
         Category               $category,
         EntityManagerInterface $entityManager,
+        CategoryRepository     $categoryRepository
     ): Response {
         $form = $this->createForm(CategoryType::class, $category);
         $form->handleRequest($request);
+
+        $categoryTree = $categoryRepository->getHtmlCategoryHierarchyForForm($category);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
@@ -49,8 +59,9 @@ class CategoryController extends AbstractController
         }
 
         return $this->render('admin/category/edit.html.twig', [
-            'category' => $category,
-            'form'     => $form,
+            'category'     => $category,
+            'form'         => $form,
+            'categoryTree' => $categoryTree
         ]);
     }
 
