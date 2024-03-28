@@ -1,4 +1,10 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
+    {% for child in form.children|filter(child => not child.rendered) %}
+        <div>
+            {{ form_label(child) }}
+            {{ form_widget(child) }}
+        </div>
+    {% endfor %}
+{#    {{ form_widget(form) }}#}
     <button class="btn">{{ button_label|default('Save') }}</button>
 {{ form_end(form) }}
