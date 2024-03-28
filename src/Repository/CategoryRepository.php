@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Category;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
 use Transliterator;
 
@@ -14,6 +16,11 @@ use Transliterator;
  */
 class CategoryRepository extends NestedTreeRepository
 {
+    public function __construct(EntityManagerInterface $manager)
+    {
+        parent::__construct($manager, $manager->getClassMetadata(Category::class));
+    }
+
     public function generateCodeName(string $name): string
     {
         $translite = Transliterator::create('Any-Latin; Latin-ASCII')->transliterate($name);
@@ -36,5 +43,27 @@ class CategoryRepository extends NestedTreeRepository
         $category = $this->findBy(["codeName" => $codeName]);
 
         return count($category) == 0;
+    }
+
+    public function getByCodeName(?string $category): ?Category
+    {
+        return $this->createQueryBuilder('c')
+            ->setMaxResults(1)
+            ->where('c.codeName = :codeName')
+            ->setParameter('codeName', $category)
+            ->getQuery()
+            ->getResult()[0];
+    }
+
+    public function getAllProductsFromCategories(Category $category): ArrayCollection
+    {
+        $productCollection = new ArrayCollection($category->getProducts()->getValues());
+        foreach ($this->getChildren($category) as $childCategory) {
+            foreach ($childCategory->getProducts()->getValues() as $product) {
+                $productCollection->add($product);
+            }
+        }
+
+        return $productCollection;
     }
 }
