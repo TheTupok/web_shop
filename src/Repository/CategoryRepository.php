@@ -68,7 +68,7 @@ class CategoryRepository extends NestedTreeRepository
     }
 
 
-    public function getHtmlCategoryHierarchyForForm(Category $category): ?string
+    public function getHtmlCategoryHierarchyForForm(?Category $category): ?string
     {
 
         $arrayTree = parent::childrenHierarchy();
