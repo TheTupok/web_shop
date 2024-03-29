@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\Category;
-use App\Repository\CategoryRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -18,9 +17,6 @@ class CategoryType extends AbstractType
             ->add('parent', EntityType::class, [
                 'class'        => Category::class,
                 'choice_label' => 'name',
-//                'query_builder' => function (CategoryRepository $repository) {
-//                    return $repository->createQueryBuilder('p')->orderBy('p.lft', 'ASC');
-//                },
                 'expanded'     => true,
                 'required'     => false,
                 'empty_data'   => null,

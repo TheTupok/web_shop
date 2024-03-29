@@ -30,7 +30,11 @@ class CategoryController extends AbstractController
             $entityManager->persist($category);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_admin_catalog', [], Response::HTTP_SEE_OTHER);
+            $url = $category->getParent() ?
+                $this->generateUrl('app_admin_catalog_category', ['codeName' => $category->getParent()->getCodeName()]) :
+                $this->generateUrl('app_admin_catalog');
+
+            return $this->redirect($url);
         }
 
         return $this->render('admin/category/new.html.twig', [
@@ -55,7 +59,11 @@ class CategoryController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_admin_catalog', [], Response::HTTP_SEE_OTHER);
+            $url = $category->getParent() ?
+                $this->generateUrl('app_admin_catalog_category', ['codeName' => $category->getParent()->getCodeName()]) :
+                $this->generateUrl('app_admin_catalog');
+
+            return $this->redirect($url);
         }
 
         return $this->render('admin/category/edit.html.twig', [
@@ -73,6 +81,10 @@ class CategoryController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_admin_catalog', [], Response::HTTP_SEE_OTHER);
+        $url = $category->getParent() ?
+            $this->generateUrl('app_admin_catalog_category', ['codeName' => $category->getParent()->getCodeName()]) :
+            $this->generateUrl('app_admin_catalog');
+
+        return $this->redirect($url);
     }
 }

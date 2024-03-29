@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Category;
 use App\Repository\CategoryRepository;
+use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,12 +16,13 @@ class CatalogController extends AbstractController
     #[Route('/', name: 'app_admin_catalog', methods: ['GET'])]
     public function index(
         EntityManagerInterface $em,
+        ProductRepository $productRepository
     ): Response {
         $categoryRepository = $em->getRepository(Category::class);
 
         return $this->render('admin/catalog/index.html.twig', [
             'category'   => null,
-            'products'   => null,
+            'products'   => $productRepository->findAll(),
             'categories' => $categoryRepository->findBy(['parent' => null]),
         ]);
     }
