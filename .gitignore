@@ -1,6 +1,5 @@
-###> webstorm idea
-/.idea/
-###<
+#webstorm idea
+.idea/
 
 ###> symfony/framework-bundle ###
 #/.env.local
