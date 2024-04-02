@@ -1,0 +1,16 @@
+{{ form_start(form) }}
+    {% for child in form.children|filter(child => not child.rendered) %}
+        {% if child == form.parent %}
+            <div>
+                {{ form_label(child) }}
+                <div id="category_{{ field_name(child) | lower }}">
+                    {{ categoryTree | raw}}
+                </div>
+            </div>
+        {% else %}
+            {{ form_row(child) }}
+        {% endif %}
+    {% endfor %}
+{#    {{ form_widget(form) }}#}
+<button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}

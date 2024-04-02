@@ -7,8 +7,11 @@ use App\Entity\Product;
 use App\Repository\CategoryRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\File;
 
 class ProductType extends AbstractType
 {
@@ -25,6 +28,28 @@ class ProductType extends AbstractType
                 },
                 'required'      => false,
                 'empty_data'    => null
+            ])
+            ->add('image', FileType::class, [
+                'label'       => 'Image',
+                'mapped'      => false,
+                'required'    => false,
+                'multiple'    => true,
+                'constraints' => [
+                    new All([
+                        'constraints' => [
+                            new File([
+                                'maxSize'          => '1024k',
+                                'mimeTypes'        => [
+                                    'image/jpeg',
+                                    'image/jpg',
+                                    'image/jpe',
+                                ],
+                                'mimeTypesMessage' => 'Please upload a valid image (jpeg, jpg, jpe)',
+                            ])
+                        ]
+                    ])
+
+                ],
             ])
         ;
     }

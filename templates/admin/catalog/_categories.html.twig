@@ -1,0 +1,26 @@
+<h2>Categories</h2>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for childCategory in categories %}
+        <tr>
+            <td>{{ childCategory.id }}</td>
+            <td>{{ childCategory.name }}</td>
+            <td>
+                <a href="{{ path('app_admin_catalog_category', {'codeName': childCategory.codeName}) }}">show</a>
+                <a href="{{ path('app_admin_category_edit', {'id': childCategory.id}) }}">edit</a>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="5">no records found</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
