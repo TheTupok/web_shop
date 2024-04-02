@@ -1,4 +1,16 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{% for child in form.children|filter(child => not child.rendered) %}
+    {% if child == form.image %}
+        <div>
+            {{ form_label(child) }}
+            <div id="product_{{ field_name(child) | lower }}">
+                <img src="{{ pathFileImage }}" alt="{{ product.name }}">
+            </div>
+        </div>
+    {% else %}
+        {{ form_row(child) }}
+    {% endif %}
+{% endfor %}
+{#    {{ form_widget(form) }}#}
+<button class="btn">{{ button_label|default('Save') }}</button>
 {{ form_end(form) }}

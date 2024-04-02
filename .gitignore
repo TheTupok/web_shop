@@ -21,6 +21,10 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
+###> upload files ###
+/public/uploads/
+###< upload files ###
+
 ###> symfony/asset-mapper ###
 /public/assets/
 /assets/vendor/

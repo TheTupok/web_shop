@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -25,6 +26,9 @@ class Product
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
     private Category|null $category = null;
+
+    #[ORM\Column]
+    private ?string $image;
 
     public function getId(): ?int
     {
@@ -76,6 +80,17 @@ class Product
     {
         $this->category = $category;
 
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(string $image): Product
+    {
+        $this->image = $image;
         return $this;
     }
 }

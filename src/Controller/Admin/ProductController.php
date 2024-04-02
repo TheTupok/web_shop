@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Product;
 use App\Form\ProductType;
+use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,9 +20,13 @@ class ProductController extends AbstractController
         Request                $request,
         Product                $product,
         EntityManagerInterface $em,
+        FileUploader           $fileUploader
     ): Response {
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
+
+        $file = $fileUploader->getFile($product->getImage());
+        $product->setImage($file->getPathname());
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
@@ -34,21 +39,29 @@ class ProductController extends AbstractController
         }
 
         return $this->render('admin/product/edit.html.twig', [
-            'product' => $product,
-            'form'    => $form,
+            'product'       => $product,
+            'form'          => $form,
+            'pathFileImage' => $fileUploader->getLocalPathFile($file),
         ]);
     }
 
     #[Route('/new', name: 'app_admin_product_new', methods: ['GET', 'POST'])]
     public function new(
         Request                $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        FileUploader           $fileUploader
     ): Response {
         $product = new Product();
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $image = $form->get('image')->getData();
+            if ($image) {
+                $brochureFileName = $fileUploader->upload($image);
+                $product->setImage($brochureFileName);
+            }
+
             $em->persist($product);
             $em->flush();
 
