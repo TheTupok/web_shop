@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Category index{% endblock %}
+
+{% block body %}
+    {% if category %}
+        <h1>{{ category.name }}</h1>
+    {% endif %}
+
+    {% if categories %}
+        {{ include('admin/catalog/_categories.html.twig', {'categories': categories}) }}
+    {% endif %}
+
+    {% if products %}
+        {{ include('admin/catalog/_products.html.twig', {'products': products}) }}
+    {% endif %}
+
+    <br>
+    <a href="{{ path('app_admin_product_new') }}">New product</a>
+    <br>
+    <a href="{{ path('app_admin_category_new') }}">New category</a>
+    <br>
+    <br>
+
+    {% if category and category.parent %}
+        <a href="{{ path('app_admin_catalog_category', {'codeName': category.getParent.codeName}) }}">back to list</a>
+    {% elseif category %}
+        <a href="{{ path('app_admin_catalog') }}">back to list</a>
+    {% endif %}
+
+{% endblock %}
