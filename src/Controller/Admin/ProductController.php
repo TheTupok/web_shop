@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use App\Entity\Product;
 use App\Form\ProductType;
+use App\Repository\FileRepository;
+use App\Repository\ProductRepository;
 use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,12 +21,22 @@ class ProductController extends AbstractController
     public function edit(
         Request                $request,
         Product                $product,
+        ProductRepository      $productRepository,
+        FileUploader           $fileUploader,
         EntityManagerInterface $em
     ): Response {
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
 
+        $product->setDetailPictures($productRepository->getDetailPictures($product));
+
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $images = $form->get('image')->getData();
+            foreach ($images as $file) {
+                $file = $fileUploader->upload($file, $product);
+                $em->persist($file);
+            }
             $em->flush();
 
             $url = $product->getCategory() ?
@@ -78,9 +90,12 @@ class ProductController extends AbstractController
     public function delete(
         Request                $request,
         Product                $product,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        FileRepository         $fileRepository
     ): Response {
         if ($this->isCsrfTokenValid('delete' . $product->getId(), $request->getPayload()->get('_token'))) {
+            $fileRepository->deleteFilesEntity($product);
+
             $em->remove($product);
             $em->flush();
         }

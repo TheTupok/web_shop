@@ -7,7 +7,7 @@ use App\Entity\Product;
 use App\Enum\EntityType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\Query\Parameter;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -30,16 +30,19 @@ class ProductRepository extends ServiceEntityRepository
         $previewPicture = $this->createQueryBuilder('picture');
     }
 
-    public function getDetailPictures(): ArrayCollection
+    public function getDetailPictures(Product $product): ArrayCollection
     {
         $queryBuilder = $this->createQueryBuilder('p');
 
         $detailPictures = $queryBuilder
             ->from(File::class, 'f')
             ->select('f')
-            ->where('f.entityId = p.id')
-            ->andWhere('f.entityType = :entity_type')
-            ->setParameter('entity_type', EntityType::PRODUCT->value)
+            ->where('f.entityId = :productId')
+            ->andWhere('f.entityType = :entityType')
+            ->setParameters(new ArrayCollection([
+                new Parameter('productId', $product->getId()),
+                new Parameter('entityType', EntityType::PRODUCT->value),
+            ]))
         ;
 
         return new ArrayCollection(

@@ -7,7 +7,11 @@
 
     {{ include('admin/product/_form.html.twig', {'button_label': 'Update'}) }}
 
-    <a href="{{ path('app_admin_catalog') }}">back to list</a>
+    {% if product.category %}
+        <a href="{{ path('app_admin_catalog_category', {'codeName': product.category.codeName}) }}">back to list</a>
+    {% else %}
+        <a href="{{ path('app_admin_catalog') }}">back to list</a>
+    {% endif %}
 
     {{ include('admin/product/_delete_form.html.twig') }}
 {% endblock %}

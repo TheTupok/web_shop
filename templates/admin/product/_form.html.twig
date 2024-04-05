@@ -1,3 +1,17 @@
+{% set currentPath = path(app.request.attributes.get('_route'),
+    app.request.attributes.get('_route_params')) %}
+    {% for image in product.detailPictures %}
+        <div class="image" style="width: 400px;position:relative;">
+            <div class="button-delete" style="position: absolute; right: 0; top: 0;z-index: 10">
+                <form action="{{ path('app_admin_file_delete', {'id': image.id, 'redirectUrl': currentPath}) }}"
+                      method="POST">
+                    <button>X</button>
+                </form>
+            </div>
+            <img src="{{ image.localPath }}" alt="" style="width: 100%">
+        </div>
+    {% endfor %}
+
 {{ form_start(form) }}
     {{ form_widget(form) }}
 <button class="btn">{{ button_label|default('Save') }}</button>

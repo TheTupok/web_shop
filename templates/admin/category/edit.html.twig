@@ -8,5 +8,9 @@
     {{ include('admin/category/_form.html.twig', {'button_label': 'Update'}) }}
     {{ include('admin/category/_delete_form.html.twig') }}
 
-    <a href="{{ path('app_admin_catalog') }}">back to list</a>
+    {% if category and category.parent %}
+        <a href="{{ path('app_admin_catalog_category', {'codeName': category.getParent.codeName}) }}">back to list</a>
+    {% elseif category %}
+        <a href="{{ path('app_admin_catalog') }}">back to list</a>
+    {% endif %}
 {% endblock %}

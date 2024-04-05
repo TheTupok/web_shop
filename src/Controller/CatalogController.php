@@ -48,7 +48,7 @@ class CatalogController extends AbstractController
         ProductRepository $productRepository
     ): Response {
 
-        $product->setDetailPictures($productRepository->getDetailPictures());
+        $product->setDetailPictures($productRepository->getDetailPictures($product));
 
         return $this->render('catalog/product.html.twig', [
             'product' => $product,

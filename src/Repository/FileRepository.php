@@ -3,7 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\File;
+use App\Enum\EntityType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Query\Parameter;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,28 +24,23 @@ class FileRepository extends ServiceEntityRepository
         parent::__construct($registry, File::class);
     }
 
-    //    /**
-    //     * @return File[] Returns an array of File objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('f')
-    //            ->andWhere('f.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('f.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function deleteFilesEntity(object $entity): bool
+    {
+        $reflClass = new \ReflectionClass($entity::class);
+        $entityType = EntityType::{mb_strtoupper($reflClass->getShortName())};
 
-    //    public function findOneBySomeField($value): ?File
-    //    {
-    //        return $this->createQueryBuilder('f')
-    //            ->andWhere('f.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $builder = $this->createQueryBuilder('f');
+
+        $builder
+            ->delete(File::class, 'f')
+            ->where('f.entityType = :entity_type')
+            ->andWhere('f.entityId = :entity_id')
+            ->setParameters(new ArrayCollection([
+                new Parameter('entity_type', $entityType->value),
+                new Parameter('entity_id', $entity->getId()),
+            ]))
+        ;
+
+        return $builder->getQuery()->execute() > 0;
+    }
 }

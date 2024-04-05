@@ -21,7 +21,6 @@ readonly class FileUploader
     public
     function upload(UploadedFile $uploadedFile, object $entity): File
     {
-        dd($uploadedFile);
         $reflClass = new \ReflectionClass($entity::class);
         $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = $this->slugger->slug($originalFilename);
