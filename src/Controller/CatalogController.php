@@ -17,7 +17,7 @@ class CatalogController extends AbstractController
     #[Route('/', name: 'app_catalog', methods: ['GET'])]
     public function index(
         EntityManagerInterface $em,
-        ProductRepository $productRepository
+        ProductRepository      $productRepository
     ): Response {
         $categoryRepository = $em->getRepository(Category::class);
 
@@ -43,8 +43,13 @@ class CatalogController extends AbstractController
     }
 
     #[Route('/product/{id}', name: 'app_product_show', methods: ['GET'])]
-    public function show(Product $product): Response
-    {
+    public function show(
+        Product           $product,
+        ProductRepository $productRepository
+    ): Response {
+
+        $product->setDetailPictures($productRepository->getDetailPictures());
+
         return $this->render('catalog/product.html.twig', [
             'product' => $product,
         ]);

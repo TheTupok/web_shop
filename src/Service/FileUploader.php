@@ -2,10 +2,11 @@
 
 namespace App\Service;
 
+use App\Entity\File;
+use App\Enum\EntityType;
+use App\Kernel;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 readonly class FileUploader
@@ -13,36 +14,43 @@ readonly class FileUploader
     public function __construct(
         private string           $targetDirectory,
         private SluggerInterface $slugger,
-        private KernelInterface  $kernel
+        private Kernel           $kernel,
     ) {
     }
 
-    public function upload(UploadedFile $file): string
+    public
+    function upload(UploadedFile $uploadedFile, object $entity): File
     {
-        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        dd($uploadedFile);
+        $reflClass = new \ReflectionClass($entity::class);
+        $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = $this->slugger->slug($originalFilename);
-        $fileName = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+        $fileName = $safeFilename . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
 
         try {
-            $file->move($this->getTargetDirectory(), $fileName);
+            $movedFile = $uploadedFile->move($this->getTargetDirectory(), $fileName);
         } catch (FileException $e) {
             // ... handle exception if something happens during file upload
         }
 
-        return $fileName;
+        $entityType = EntityType::{mb_strtoupper($reflClass->getShortName())};
+
+        $file = (new File())
+            ->setName($fileName)
+            ->setSize($movedFile->getSize())
+            ->setRootPath($movedFile->getPathname())
+            ->setEntityId($entity->getId())
+            ->setEntityType($entityType->value)
+            ->setSort(100)
+        ;
+
+        $file->setLocalPath(str_replace($this->kernel->getProjectDir() . "/public", "", $file->getRootPath()));
+
+        return $file;
     }
 
-    public function getFile(string $fileName): File
-    {
-        return new File($this->kernel->getProjectDir() . $this->getTargetDirectory() . '/' . $fileName);
-    }
-
-    public function getLocalPathFile(File $file): string
-    {
-        return str_replace($this->kernel->getProjectDir() . '/public', '', $file->getPathname());
-    }
-
-    public function getTargetDirectory(): string
+    public
+    function getTargetDirectory(): string
     {
         return $this->targetDirectory;
     }

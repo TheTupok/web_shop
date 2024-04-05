@@ -7,25 +7,33 @@
 
     <table class="table">
         <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ product.id }}</td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td>{{ product.name }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ product.description }}</td>
-            </tr>
-            <tr>
-                <th>Price</th>
-                <td>{{ product.price }}</td>
-            </tr>
+        <tr>
+            <th>Id</th>
+            <td>{{ product.id }}</td>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <td>{{ product.name }}</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>{{ product.description }}</td>
+        </tr>
+        <tr>
+            <th>Price</th>
+            <td>{{ product.price }}</td>
+        </tr>
+        <tr>
+            <th>Image</th>
+                <td>
+                    {% for picture in product.detailPictures %}
+                        <img src="{{ picture.localPath }}" alt="{{ product.name }}">
+                    {% endfor %}
+                </td>
+        </tr>
         </tbody>
     </table>
 
-{#    <a href="{{ path('app_product_index') }}">back to list</a>#}
+    {#    <a href="{{ path('app_product_index') }}">back to list</a> #}
 
 {% endblock %}

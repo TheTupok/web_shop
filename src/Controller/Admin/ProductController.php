@@ -19,14 +19,10 @@ class ProductController extends AbstractController
     public function edit(
         Request                $request,
         Product                $product,
-        EntityManagerInterface $em,
-        FileUploader           $fileUploader
+        EntityManagerInterface $em
     ): Response {
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
-
-        $file = $fileUploader->getFile($product->getImage());
-        $product->setImage($file->getPathname());
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
@@ -39,9 +35,8 @@ class ProductController extends AbstractController
         }
 
         return $this->render('admin/product/edit.html.twig', [
-            'product'       => $product,
-            'form'          => $form,
-            'pathFileImage' => $fileUploader->getLocalPathFile($file),
+            'product' => $product,
+            'form'    => $form,
         ]);
     }
 
@@ -56,13 +51,14 @@ class ProductController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $image = $form->get('image')->getData();
-            if ($image) {
-                $brochureFileName = $fileUploader->upload($image);
-                $product->setImage($brochureFileName);
-            }
-
             $em->persist($product);
+            $em->flush();
+
+            $images = $form->get('image')->getData();
+            foreach ($images as $file) {
+                $file = $fileUploader->upload($file, $product);
+                $em->persist($file);
+            }
             $em->flush();
 
             $url = $product->getCategory() ?

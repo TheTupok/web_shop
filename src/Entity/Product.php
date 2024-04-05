@@ -3,8 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\ProductRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\HttpFoundation\File\File;
+use Doctrine\ORM\PersistentCollection;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -23,12 +24,16 @@ class Product
     #[ORM\Column]
     private ?int $price = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $previewPictureId = null;
+
+    private ?File $previewPicture = null;
+
+    private ?ArrayCollection $detailPictures = null;
+
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
     private Category|null $category = null;
-
-    #[ORM\Column]
-    private ?string $image;
 
     public function getId(): ?int
     {
@@ -83,14 +88,36 @@ class Product
         return $this;
     }
 
-    public function getImage(): ?string
+    public function getPreviewPictureId(): ?int
     {
-        return $this->image;
+        return $this->previewPictureId;
     }
 
-    public function setImage(string $image): Product
+    public function setPreviewPictureId(?int $previewPictureId): Product
     {
-        $this->image = $image;
+        $this->previewPictureId = $previewPictureId;
+        return $this;
+    }
+
+    public function getPreviewPicture(): ?File
+    {
+        return $this->previewPicture;
+    }
+
+    public function setPreviewPicture(File $previewPicture): Product
+    {
+        $this->previewPicture = $previewPicture;
+        return $this;
+    }
+
+    public function getDetailPictures(): ?ArrayCollection
+    {
+        return $this->detailPictures;
+    }
+
+    public function setDetailPictures(ArrayCollection $detailPictures): Product
+    {
+        $this->detailPictures = $detailPictures;
         return $this;
     }
 }
