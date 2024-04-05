@@ -27,6 +27,8 @@ class Product
     #[ORM\Column(nullable: true)]
     private ?int $previewPictureId = null;
 
+    #[ORM\OneToOne(targetEntity: File::class)]
+    #[ORM\JoinColumn(name: 'preview_picture_id', referencedColumnName: 'id')]
     private ?File $previewPicture = null;
 
     private ?ArrayCollection $detailPictures = null;
@@ -96,6 +98,7 @@ class Product
     public function setPreviewPictureId(?int $previewPictureId): Product
     {
         $this->previewPictureId = $previewPictureId;
+
         return $this;
     }
 
@@ -107,6 +110,7 @@ class Product
     public function setPreviewPicture(File $previewPicture): Product
     {
         $this->previewPicture = $previewPicture;
+
         return $this;
     }
 
@@ -118,6 +122,7 @@ class Product
     public function setDetailPictures(ArrayCollection $detailPictures): Product
     {
         $this->detailPictures = $detailPictures;
+
         return $this;
     }
 }

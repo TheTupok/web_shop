@@ -29,8 +29,25 @@ class ProductType extends AbstractType
                 'required'      => false,
                 'empty_data'    => null
             ])
-            ->add('image', FileType::class, [
-                'label'       => 'Image',
+            ->add('previewPicture', FileType::class, [
+                'label'       => 'Preview pictures',
+                'mapped'      => false,
+                'required'    => false,
+                'constraints' =>
+                    new File([
+                        'maxSize'          => '1024k',
+                        'mimeTypes'        => [
+                            'image/jpeg',
+                            'image/jpg',
+                            'image/jpe',
+                            'image/png',
+                            'image/webp',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image (jpeg, jpg, jpe, png, webp)',
+                    ])
+            ])
+            ->add('detailPictures', FileType::class, [
+                'label'       => 'Detail pictures',
                 'mapped'      => false,
                 'required'    => false,
                 'multiple'    => true,

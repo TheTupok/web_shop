@@ -6,8 +6,11 @@ use App\Entity\File;
 use App\Enum\EntityType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\Persistence\ManagerRegistry;
+use ReflectionClass;
+use ReflectionException;
 
 /**
  * @extends ServiceEntityRepository<File>
@@ -24,9 +27,12 @@ class FileRepository extends ServiceEntityRepository
         parent::__construct($registry, File::class);
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function deleteFilesEntity(object $entity): bool
     {
-        $reflClass = new \ReflectionClass($entity::class);
+        $reflClass = new ReflectionClass($entity::class);
         $entityType = EntityType::{mb_strtoupper($reflClass->getShortName())};
 
         $builder = $this->createQueryBuilder('f');

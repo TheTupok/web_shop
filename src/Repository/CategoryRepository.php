@@ -88,7 +88,7 @@ class CategoryRepository extends NestedTreeRepository
         return $categoryHtml;
     }
 
-    private function drawCategoryForHierarchy(array $drawCategory, ?Category $currentCategory, string &$html)
+    private function drawCategoryForHierarchy(array $drawCategory, ?Category $currentCategory, string &$html): void
     {
         if ($currentCategory !== null
             && $drawCategory['id'] == $currentCategory->getId()) {

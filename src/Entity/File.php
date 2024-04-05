@@ -3,9 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\FileRepository;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\NoReturn;
 
 #[ORM\Entity(repositoryClass: FileRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class File
 {
     #[ORM\Id]
@@ -28,11 +31,24 @@ class File
     #[ORM\Column]
     private ?int $sort = null;
 
+    #[ORM\Column(options: ["default" => false])]
+    private bool $isPreview = false;
+
     #[ORM\Column]
     private ?int $entityType = null;
 
     #[ORM\Column]
     private ?int $entityId = null;
+
+    #[NoReturn] #[ORM\PreRemove]
+    public function doUnlinkFilePreRemove(PreRemoveEventArgs $eventArgs): void
+    {
+        /**
+         * @var $file File
+         */
+        $file = $eventArgs->getObject();
+        unlink($file->getRootPath());
+    }
 
     public function getId(): ?int
     {
@@ -95,6 +111,18 @@ class File
     public function setSort(int $sort): static
     {
         $this->sort = $sort;
+
+        return $this;
+    }
+
+    public function isPreview(): bool
+    {
+        return $this->isPreview;
+    }
+
+    public function setIsPreview(bool $isPreview): File
+    {
+        $this->isPreview = $isPreview;
 
         return $this;
     }

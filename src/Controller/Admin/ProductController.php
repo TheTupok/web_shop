@@ -31,8 +31,19 @@ class ProductController extends AbstractController
         $product->setDetailPictures($productRepository->getDetailPictures($product));
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $previewPicture = $form->get('previewPicture')->getData();
+            if ($previewPicture) {
+                if ($product->getPreviewPicture()) {
+                    $em->remove($product->getPreviewPicture());
+                }
 
-            $images = $form->get('image')->getData();
+                $filePreview = $fileUploader->upload($previewPicture, $product, true);
+                $em->persist($filePreview);
+
+                $product->setPreviewPicture($filePreview);
+            }
+
+            $images = $form->get('detailPictures')->getData();
             foreach ($images as $file) {
                 $file = $fileUploader->upload($file, $product);
                 $em->persist($file);
@@ -52,7 +63,8 @@ class ProductController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_admin_product_new', methods: ['GET', 'POST'])]
+    #[
+        Route('/new', name: 'app_admin_product_new', methods: ['GET', 'POST'])]
     public function new(
         Request                $request,
         EntityManagerInterface $em,
@@ -66,7 +78,7 @@ class ProductController extends AbstractController
             $em->persist($product);
             $em->flush();
 
-            $images = $form->get('image')->getData();
+            $images = $form->get('detailPictures')->getData();
             foreach ($images as $file) {
                 $file = $fileUploader->upload($file, $product);
                 $em->persist($file);

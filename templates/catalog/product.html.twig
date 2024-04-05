@@ -24,6 +24,14 @@
             <td>{{ product.price }}</td>
         </tr>
         <tr>
+            <th>Preview image</th>
+            <td>
+                {% if product.previewPicture %}
+                    <img src="{{ product.previewPicture.localPath }}" alt="">
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
             <th>Image</th>
                 <td>
                     {% for picture in product.detailPictures %}

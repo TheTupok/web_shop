@@ -19,7 +19,7 @@ readonly class FileUploader
     }
 
     public
-    function upload(UploadedFile $uploadedFile, object $entity): File
+    function upload(UploadedFile $uploadedFile, object $entity, bool $isPreview = false): File
     {
         $reflClass = new \ReflectionClass($entity::class);
         $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -41,6 +41,7 @@ readonly class FileUploader
             ->setEntityId($entity->getId())
             ->setEntityType($entityType->value)
             ->setSort(100)
+            ->setIsPreview($isPreview)
         ;
 
         $file->setLocalPath(str_replace($this->kernel->getProjectDir() . "/public", "", $file->getRootPath()));

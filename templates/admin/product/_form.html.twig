@@ -1,5 +1,12 @@
 {% set currentPath = path(app.request.attributes.get('_route'),
     app.request.attributes.get('_route_params')) %}
+{% if product.previewPicture %}
+    <p>Preview image</p>
+    <img src="{{ product.previewPicture.localPath }}" alt="">
+{% endif %}
+
+{% if product.detailPictures.count > 0 %}
+    <p>Images</p>
     {% for image in product.detailPictures %}
         <div class="image" style="width: 400px;position:relative;">
             <div class="button-delete" style="position: absolute; right: 0; top: 0;z-index: 10">
@@ -11,6 +18,7 @@
             <img src="{{ image.localPath }}" alt="" style="width: 100%">
         </div>
     {% endfor %}
+{% endif %}
 
 {{ form_start(form) }}
     {{ form_widget(form) }}

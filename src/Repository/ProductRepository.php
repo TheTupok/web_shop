@@ -25,11 +25,6 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function getPreviewPicture()
-    {
-        $previewPicture = $this->createQueryBuilder('picture');
-    }
-
     public function getDetailPictures(Product $product): ArrayCollection
     {
         $queryBuilder = $this->createQueryBuilder('p');
@@ -39,6 +34,7 @@ class ProductRepository extends ServiceEntityRepository
             ->select('f')
             ->where('f.entityId = :productId')
             ->andWhere('f.entityType = :entityType')
+            ->andWhere('f.isPreview = false')
             ->setParameters(new ArrayCollection([
                 new Parameter('productId', $product->getId()),
                 new Parameter('entityType', EntityType::PRODUCT->value),
