@@ -51,32 +51,6 @@ class ProductType extends AbstractType
                     ])
             ])
         ;
-
-        if ($product->getProductSKU()->count() === 0) {
-            $builder
-                ->add('product', EntityType::class, [
-                    'class'         => Product::class,
-                    'required'      => false,
-                    'empty_data'    => null,
-                    'choice_label'  => 'name',
-                    'query_builder' => function (EntityRepository $er) use ($product): QueryBuilder {
-                        $queryBuilder = $er
-                            ->createQueryBuilder('p')
-                            ->where('p.product IS NULL')
-                        ;
-
-                        if ($product->getId()) {
-                            $queryBuilder
-                                ->andWhere('p.id != :product_id')
-                                ->setParameter('product_id', $product->getId())
-                            ;
-                        }
-
-                        return $queryBuilder;
-                    },
-                ])
-            ;
-        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

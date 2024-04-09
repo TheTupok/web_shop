@@ -16,13 +16,13 @@ class CatalogController extends AbstractController
     #[Route('/', name: 'app_admin_catalog', methods: ['GET'])]
     public function index(
         EntityManagerInterface $em,
-        ProductRepository $productRepository
+        ProductRepository      $productRepository
     ): Response {
         $categoryRepository = $em->getRepository(Category::class);
 
         return $this->render('admin/catalog/index.html.twig', [
             'category'   => null,
-            'products'   => $productRepository->findProducts(),
+            'products'   => $productRepository->findAll(),
             'categories' => $categoryRepository->findBy(['parent' => null]),
         ]);
     }

@@ -65,9 +65,7 @@ class CategoryRepository extends NestedTreeRepository
             }
         }
 
-        return $productCollection->filter(function ($product) {
-            return $product->getProduct() === null;
-        });
+        return $productCollection;
     }
 
 

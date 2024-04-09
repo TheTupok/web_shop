@@ -27,7 +27,7 @@ class ProductImage extends File
     #[ORM\Column(length: 255)]
     private ?string $rootPath = null;
 
-    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'images')]
+    #[ORM\OneToOne(inversedBy: 'image', targetEntity: Product::class)]
     #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id')]
     private Product|null $product = null;
 

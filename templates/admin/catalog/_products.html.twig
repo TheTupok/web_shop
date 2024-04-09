@@ -4,7 +4,6 @@
     <tr>
         <th>Id</th>
         <th>Name</th>
-        <th>SKU</th>
         <th>Category</th>
         <th>actions</th>
     </tr>
@@ -14,9 +13,6 @@
         <tr>
             <td>{{ product.id }}</td>
             <td>{{ product.name }}</td>
-            <td>
-                <p>{{ (product.getProductSKU.count > 0) ? '+' : '-' }}</p>
-            </td>
             <td>{{ product.category }}</td>
             <td>
                 <a href="{{ path('app_admin_product_edit', {'id': product.id}) }}">edit</a>
