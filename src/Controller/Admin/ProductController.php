@@ -28,11 +28,7 @@ class ProductController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
 
-            $url = $product->getCategory() ?
-                $this->generateUrl('app_admin_catalog_category', ['codeName' => $product->getCategory()->getCodeName()]) :
-                $this->generateUrl('app_admin_catalog');
-
-            return $this->redirect($url);
+            return $this->redirectToRoute('app_admin_catalog');
         }
 
         return $this->render('admin/product/edit.html.twig', [
@@ -61,11 +57,7 @@ class ProductController extends AbstractController
             $em->persist($product);
             $em->flush();
 
-            $url = $product->getCategory() ?
-                $this->generateUrl('app_admin_catalog_category', ['codeName' => $product->getCategory()->getCodeName()]) :
-                $this->generateUrl('app_admin_catalog');
-
-            return $this->redirect($url);
+            return $this->redirectToRoute('app_admin_catalog');
         }
 
         return $this->render('admin/product/new.html.twig', [
@@ -88,10 +80,6 @@ class ProductController extends AbstractController
             $em->flush();
         }
 
-        $url = $product->getCategory() ?
-            $this->generateUrl('app_admin_catalog_category', ['codeName' => $product->getCategory()->getCodeName()]) :
-            $this->generateUrl('app_admin_catalog');
-
-        return $this->redirect($url);
+        return $this->redirectToRoute('app_admin_catalog');
     }
 }

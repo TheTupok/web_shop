@@ -5,3 +5,34 @@
     {{ form_widget(form) }}
 <button class="btn">{{ button_label|default('Save') }}</button>
 {{ form_end(form) }}
+
+{% if product.productSKU and product.productSKU.count > 0 %}
+    <div>
+        <table class="sku_table">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for sku in product.productSKU %}
+                <tr>
+                    <td>{{ sku.id }}</td>
+                    <td>{{ sku.name }}</td>
+                    <td>
+                        {% if sku.category %}
+                            {{ sku.category.name }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('app_admin_product_edit', {'id': sku.id}) }}">edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
