@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Category;
+use App\Entity\Product;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
@@ -64,13 +65,14 @@ class CategoryRepository extends NestedTreeRepository
             }
         }
 
-        return $productCollection;
+        return $productCollection->filter(function ($product) {
+            return $product->getProduct() === null;
+        });
     }
 
 
     public function getHtmlCategoryHierarchyForForm(?Category $category): ?string
     {
-
         $arrayTree = parent::childrenHierarchy();
         $categoryHtml =
             '<ul>

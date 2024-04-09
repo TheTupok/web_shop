@@ -2,12 +2,9 @@
 
 namespace App\Repository;
 
-use App\Entity\File;
 use App\Entity\Product;
 use App\Enum\EntityType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Query\Parameter;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -25,26 +22,11 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function getDetailPictures(Product $product): ArrayCollection
+    public function findProducts()
     {
-        $queryBuilder = $this->createQueryBuilder('p');
+        $builder = $this->createQueryBuilder('p')
+            ->where('p.product is NULL');
 
-        $detailPictures = $queryBuilder
-            ->from(File::class, 'f')
-            ->select('f')
-            ->where('f.entityId = :productId')
-            ->andWhere('f.entityType = :entityType')
-            ->andWhere('f.isPreview = false')
-            ->setParameters(new ArrayCollection([
-                new Parameter('productId', $product->getId()),
-                new Parameter('entityType', EntityType::PRODUCT->value),
-            ]))
-        ;
-
-        return new ArrayCollection(
-            $detailPictures
-                ->getQuery()
-                ->execute()
-        );
+        return $builder->getQuery()->execute();
     }
 }

@@ -4,9 +4,9 @@
     <tr>
         <th>Id</th>
         <th>Name</th>
-        <th>Description</th>
-        <th>Category</th>
-        <th>Price</th>
+        <th>SKU</th>
+{#        <th>Category</th>#}
+{#        <th>Price</th>#}
         <th>actions</th>
     </tr>
     </thead>
@@ -15,9 +15,16 @@
         <tr>
             <td>{{ product.id }}</td>
             <td>{{ product.name }}</td>
-            <td>{{ product.description }}</td>
-            <td>{{ product.category }}</td>
-            <td>{{ product.price }}</td>
+            <td>
+                {% if product.productSKU %}
+                    {% for sku in product.productSKU %}
+                        {{ sku.name }}
+                    {% endfor %}
+                {% endif %}
+            </td>
+{#            <td>{{ product.description }}</td>#}
+{#            <td>{{ product.category }}</td>#}
+{#            <td>{{ product.price }}</td>#}
             <td>
                 <a href="{{ path('app_admin_product_edit', {'id': product.id}) }}">edit</a>
             </td>

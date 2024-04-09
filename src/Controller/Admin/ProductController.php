@@ -2,16 +2,15 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\File\ProductImage;
 use App\Entity\Product;
 use App\Form\ProductType;
-use App\Repository\FileRepository;
-use App\Repository\ProductRepository;
 use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\HttpFoundation\Request;
 
 
 #[Route('/admin/catalog/product')]
@@ -21,33 +20,12 @@ class ProductController extends AbstractController
     public function edit(
         Request                $request,
         Product                $product,
-        ProductRepository      $productRepository,
-        FileUploader           $fileUploader,
         EntityManagerInterface $em
     ): Response {
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
 
-        $product->setDetailPictures($productRepository->getDetailPictures($product));
-
         if ($form->isSubmitted() && $form->isValid()) {
-            $previewPicture = $form->get('previewPicture')->getData();
-            if ($previewPicture) {
-                if ($product->getPreviewPicture()) {
-                    $em->remove($product->getPreviewPicture());
-                }
-
-                $filePreview = $fileUploader->upload($previewPicture, $product, true);
-                $em->persist($filePreview);
-
-                $product->setPreviewPicture($filePreview);
-            }
-
-            $images = $form->get('detailPictures')->getData();
-            foreach ($images as $file) {
-                $file = $fileUploader->upload($file, $product);
-                $em->persist($file);
-            }
             $em->flush();
 
             $url = $product->getCategory() ?
@@ -63,8 +41,7 @@ class ProductController extends AbstractController
         ]);
     }
 
-    #[
-        Route('/new', name: 'app_admin_product_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_product_new', methods: ['GET', 'POST'])]
     public function new(
         Request                $request,
         EntityManagerInterface $em,
@@ -75,14 +52,13 @@ class ProductController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($product);
-            $em->flush();
-
-            $images = $form->get('detailPictures')->getData();
-            foreach ($images as $file) {
-                $file = $fileUploader->upload($file, $product);
+            $image = $form->get('image')->getData();
+            if ($image) {
+                $file = $fileUploader->upload($image, $product, ProductImage::class);
                 $em->persist($file);
             }
+
+            $em->persist($product);
             $em->flush();
 
             $url = $product->getCategory() ?
@@ -103,11 +79,11 @@ class ProductController extends AbstractController
         Request                $request,
         Product                $product,
         EntityManagerInterface $em,
-        FileRepository         $fileRepository
     ): Response {
         if ($this->isCsrfTokenValid('delete' . $product->getId(), $request->getPayload()->get('_token'))) {
-            $fileRepository->deleteFilesEntity($product);
-
+            foreach ($product->getImages() as $image) {
+                $em->remove($image);
+            }
             $em->remove($product);
             $em->flush();
         }

@@ -2,12 +2,15 @@
 
 namespace App\Entity;
 
+use App\Entity\File\ProductImage;
+use App\Entity\File\ProductVariantsImage;
 use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\PersistentCollection;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
+#[ORM\Table(name: 'products')]
 class Product
 {
     #[ORM\Id]
@@ -18,24 +21,25 @@ class Product
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $description = null;
-
-    #[ORM\Column]
-    private ?int $price = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?int $previewPictureId = null;
-
-    #[ORM\OneToOne(targetEntity: File::class)]
-    #[ORM\JoinColumn(name: 'preview_picture_id', referencedColumnName: 'id')]
-    private ?File $previewPicture = null;
-
-    private ?ArrayCollection $detailPictures = null;
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductImage::class)]
+    private ArrayCollection|PersistentCollection $images;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
     private Category|null $category = null;
+
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: Product::class)]
+    private ArrayCollection|PersistentCollection $productSKU;
+
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'productSKU')]
+    #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id')]
+    private Product|null $product = null;
+
+    public function __construct()
+    {
+        $this->productSKU = new ArrayCollection();
+        $this->images = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -47,33 +51,9 @@ class Product
         return $this->name;
     }
 
-    public function setName(string $name): static
+    public function setName(?string $name): Product
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): static
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    public function getPrice(): ?int
-    {
-        return $this->price;
-    }
-
-    public function setPrice(int $price): static
-    {
-        $this->price = $price;
 
         return $this;
     }
@@ -90,38 +70,38 @@ class Product
         return $this;
     }
 
-    public function getPreviewPictureId(): ?int
+    public function getImages(): ArrayCollection|PersistentCollection
     {
-        return $this->previewPictureId;
+        return $this->images;
     }
 
-    public function setPreviewPictureId(?int $previewPictureId): Product
+    public function setImages(ArrayCollection|PersistentCollection $image): Product
     {
-        $this->previewPictureId = $previewPictureId;
+        $this->images = $image;
 
         return $this;
     }
 
-    public function getPreviewPicture(): ?File
+    public function getProductSKU(): ArrayCollection|PersistentCollection
     {
-        return $this->previewPicture;
+        return $this->productSKU;
     }
 
-    public function setPreviewPicture(File $previewPicture): Product
+    public function setProductSKU(ArrayCollection|PersistentCollection $productSKU): Product
     {
-        $this->previewPicture = $previewPicture;
+        $this->productSKU = $productSKU;
 
         return $this;
     }
 
-    public function getDetailPictures(): ?ArrayCollection
+    public function getProduct(): ?Product
     {
-        return $this->detailPictures;
+        return $this->product;
     }
 
-    public function setDetailPictures(ArrayCollection $detailPictures): Product
+    public function setProduct(?Product $product): Product
     {
-        $this->detailPictures = $detailPictures;
+        $this->product = $product;
 
         return $this;
     }

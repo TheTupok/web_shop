@@ -2,11 +2,10 @@
 
 namespace App\Service;
 
-use App\Entity\File;
-use App\Enum\EntityType;
-use App\Kernel;
+use App\Entity\File\File;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 readonly class FileUploader
@@ -14,39 +13,33 @@ readonly class FileUploader
     public function __construct(
         private string           $targetDirectory,
         private SluggerInterface $slugger,
-        private Kernel           $kernel,
+        private KernelInterface  $kernel,
     ) {
     }
 
     public
-    function upload(UploadedFile $uploadedFile, object $entity, bool $isPreview = false): File
-    {
-        $reflClass = new \ReflectionClass($entity::class);
+    function upload(
+        UploadedFile $uploadedFile,
+        object       $entity,
+        string       $fileClass
+    ): ?File {
         $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = $this->slugger->slug($originalFilename);
         $fileName = $safeFilename . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
 
         try {
             $movedFile = $uploadedFile->move($this->getTargetDirectory(), $fileName);
-        } catch (FileException $e) {
+
+            return (new $fileClass())
+                ->setName($fileName)
+                ->setPath(str_replace($this->kernel->getProjectDir() . "/public", "", $movedFile->getPathname()))
+                ->setEntity($entity)
+                ->setRootPath($movedFile->getPathname())
+            ;
+        } catch (FileException) {
             // ... handle exception if something happens during file upload
+            return null;
         }
-
-        $entityType = EntityType::{mb_strtoupper($reflClass->getShortName())};
-
-        $file = (new File())
-            ->setName($fileName)
-            ->setSize($movedFile->getSize())
-            ->setRootPath($movedFile->getPathname())
-            ->setEntityId($entity->getId())
-            ->setEntityType($entityType->value)
-            ->setSort(100)
-            ->setIsPreview($isPreview)
-        ;
-
-        $file->setLocalPath(str_replace($this->kernel->getProjectDir() . "/public", "", $file->getRootPath()));
-
-        return $file;
     }
 
     public

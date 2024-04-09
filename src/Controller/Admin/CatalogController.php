@@ -22,7 +22,7 @@ class CatalogController extends AbstractController
 
         return $this->render('admin/catalog/index.html.twig', [
             'category'   => null,
-            'products'   => $productRepository->findAll(),
+            'products'   => $productRepository->findProducts(),
             'categories' => $categoryRepository->findBy(['parent' => null]),
         ]);
     }
@@ -35,7 +35,7 @@ class CatalogController extends AbstractController
         $category = $categoryRepository->getByCodeName($codeName);
 
         return $this->render('admin/catalog/index.html.twig', [
-            'category'   => $categoryRepository->getByCodeName($codeName),
+            'category'   => $category,
             'categories' => $categoryRepository->getChildren($category, true),
             'products'   => $categoryRepository->getAllProductsFromCategories($category),
         ]);
